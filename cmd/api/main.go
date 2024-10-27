@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/hayohtee/social/internal/database"
 	"github.com/hayohtee/social/internal/env"
 	"github.com/hayohtee/social/internal/repository"
 	"github.com/joho/godotenv"
@@ -24,9 +25,15 @@ func main() {
 		},
 	}
 
+	db, err := database.New(cfg.db.addr, cfg.db.maxOpenConns, cfg.db.maxIdleConns, cfg.db.maxIdleTime)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
 	app := &application{
 		config:     cfg,
-		repository: repository.NewRepository(nil),
+		repository: repository.NewRepository(db),
 	}
 
 	routes := app.routes()
