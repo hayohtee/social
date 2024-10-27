@@ -30,6 +30,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
+	log.Println("database connection pool established")
 
 	app := &application{
 		config:     cfg,
