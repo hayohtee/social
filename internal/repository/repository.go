@@ -3,14 +3,16 @@ package repository
 import (
 	"context"
 	"database/sql"
+
+	"github.com/hayohtee/social/internal/data"
 )
 
 type Repository struct {
 	Posts interface {
-		Create(context.Context) error
+		Create(context.Context, *data.Post) error
 	}
 	Users interface {
-		Create(context.Context) error
+		Create(context.Context, *data.User) error
 	}
 }
 
