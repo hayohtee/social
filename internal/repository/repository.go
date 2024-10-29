@@ -3,14 +3,21 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/hayohtee/social/internal/data"
+)
+
+var (
+	ErrNotFound = errors.New("record not found")
 )
 
 type Repository struct {
 	Posts interface {
 		Create(context.Context, *data.Post) error
+		GetByID(context.Context, int64) (data.Post, error)
 	}
+
 	Users interface {
 		Create(context.Context, *data.User) error
 	}
