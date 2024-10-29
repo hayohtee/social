@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"time"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/lib/pq"
 )
 
 // New create an return a sql.DB connection to a PostgreSQL database.
 func New(addr string, maxOpenConns, maxIdleConns int, maxIdleTime string) (*sql.DB, error) {
-	db, err := sql.Open("pgx", addr)
+	db, err := sql.Open("postgres", addr)
 	if err != nil {
 		return nil, err
 	}
