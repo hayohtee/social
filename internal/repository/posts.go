@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/hayohtee/social/internal/data"
+	"github.com/lib/pq"
 )
 
 type PostsRepository struct {
@@ -19,7 +20,7 @@ func (p *PostsRepository) Create(ctx context.Context, post *data.Post) error {
 		RETURNING id, created_at, updated_at
 	`
 
-	args := []any{post.Content, post.Title, post.UserID, post.Tags}
+	args := []any{post.Content, post.Title, post.UserID, pq.Array(post.Tags)}
 
 	return p.db.QueryRowContext(ctx, query, args...).Scan(
 		&post.ID,
@@ -40,7 +41,7 @@ func (p *PostsRepository) GetByID(ctx context.Context, id int64) (data.Post, err
 		&post.UserID,
 		&post.Title,
 		&post.Content,
-		&post.Tags,
+		pq.Array(&post.Tags),
 		&post.CreatedAt,
 		&post.UpdatedAt,
 	)
