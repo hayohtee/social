@@ -20,8 +20,7 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := readJSON(w, r, &input); err != nil {
-		log.Println(err)
-		writeJSONError(w, http.StatusBadRequest, "bad request")
+		app.badRequestErrorResponse(w, r, err, "bad request")
 		return
 	}
 
@@ -63,7 +62,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "postID")
 	id, err := strconv.ParseInt(idParam, 16, 64)
 	if err != nil || id < 0 {
-		writeJSONError(w, http.StatusBadRequest, "id must be a positive number")
+		app.badRequestErrorResponse(w, r, err, "id must be a positive number")
 		return
 	}
 
