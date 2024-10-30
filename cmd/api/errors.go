@@ -14,3 +14,8 @@ func (app *application) badRequestErrorResponse(w http.ResponseWriter, r *http.R
 	log.Printf("bad request error: %s path: %s error: %s\n", r.Method, r.URL.Path, err)
 	writeJSONError(w, http.StatusBadRequest, message)
 }
+
+func (app *application) notFoundErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
+	log.Printf("not found error: %s path: %s error: %s\n", r.Method, r.URL.Path, err)
+	writeJSONError(w, http.StatusBadRequest, "the requested resource could not be found")
+}
