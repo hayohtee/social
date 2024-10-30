@@ -71,7 +71,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		switch {
 		case errors.Is(err, repository.ErrNotFound):
-			writeJSONError(w, http.StatusNotFound, "the requested resource could not be found")
+			app.notFoundErrorResponse(w, r, err)
 		default:
 			app.internalServerErrorResponse(w, r, err)
 		}
