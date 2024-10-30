@@ -34,8 +34,7 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := app.repository.Posts.Create(r.Context(), &post); err != nil {
-		log.Println(err)
-		writeJSONError(w, http.StatusInternalServerError, "internal server error")
+		app.internalServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -56,8 +55,7 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 	response.UpdatedAt = post.UpdatedAt
 
 	if err := writeJSON(w, http.StatusCreated, envelope{"post": response}); err != nil {
-		log.Println(err)
-		writeJSONError(w, http.StatusInternalServerError, "internal server error")
+		app.internalServerErrorResponse(w, r, err)
 	}
 }
 
@@ -76,7 +74,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, repository.ErrNotFound):
 			writeJSONError(w, http.StatusNotFound, "the requested resource could not be found")
 		default:
-			writeJSONError(w, http.StatusInternalServerError, "error processing the request")
+			app.internalServerErrorResponse(w, r, err)
 		}
 		return
 	}
@@ -100,7 +98,6 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	resp.UpdatedAt = post.UpdatedAt
 
 	if err = writeJSON(w, http.StatusOK, envelope{"post": resp}); err != nil {
-		log.Println(err)
-		writeJSONError(w, http.StatusInternalServerError, "error processing the request")
+		app.internalServerErrorResponse(w, r, err)
 	}
 }
