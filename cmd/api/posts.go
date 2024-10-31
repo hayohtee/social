@@ -28,10 +28,10 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 	v := validator.New()
 
 	v.Check(input.Title != "", "title", "must be provided")
-	v.Check(len(input.Title) > 100, "title", "must not be more than 100 bytes long")
+	v.Check(len(input.Title) <= 100, "title", "must not be more than 100 bytes long")
 
 	v.Check(input.Content != "", "content", "must be provided")
-	v.Check(len(input.Content) > 1000, "content", "must be more than 1000 bytes long")
+	v.Check(len(input.Content) <= 1000, "content", "must be more than 1000 bytes long")
 
 	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
@@ -67,6 +67,10 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 	response.CreatedAt = post.CreatedAt
 	response.UpdatedAt = post.UpdatedAt
 
+	if len(response.Tags) == 0 {
+		response.Tags = make([]string, 0)
+	}
+
 	if err := app.writeJSON(w, http.StatusCreated, envelope{"post": response}, nil); err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -92,14 +96,21 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	comments, err := app.repository.Comments.GetByPostID(r.Context(), post.ID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	var resp struct {
-		ID        int64     `json:"id"`
-		UserID    int64     `json:"user_id"`
-		Title     string    `json:"title"`
-		Content   string    `json:"content"`
-		Tags      []string  `json:"tags"`
-		CreatedAt time.Time `json:"created_at"`
-		UpdatedAt time.Time `json:"updated_at"`
+		ID        int64                  `json:"id"`
+		UserID    int64                  `json:"user_id"`
+		Title     string                 `json:"title"`
+		Content   string                 `json:"content"`
+		Tags      []string               `json:"tags"`
+		CreatedAt time.Time              `json:"created_at"`
+		UpdatedAt time.Time              `json:"updated_at"`
+		Comments  []data.CommentWithUser `json:"comments"`
 	}
 
 	resp.ID = post.ID
@@ -109,6 +120,15 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	resp.Tags = post.Tags
 	resp.CreatedAt = post.CreatedAt
 	resp.UpdatedAt = post.UpdatedAt
+	resp.Comments = comments
+
+	if len(resp.Tags) == 0 {
+		resp.Tags = []string{}
+	}
+
+	if len(resp.Comments) == 0 {
+		resp.Comments = []data.CommentWithUser{}
+	}
 
 	if err = app.writeJSON(w, http.StatusOK, envelope{"post": resp}, nil); err != nil {
 		app.serverErrorResponse(w, r, err)
