@@ -12,7 +12,6 @@ import (
 
 type envelope map[string]any
 
-
 // writeJSON encode the data into json and send it as response. This takes destination
 // http.ResponseWrite, the HTTP status code to send, data to encode, and a header
 // map containing any additional HTTP headers we want to include in the response.
