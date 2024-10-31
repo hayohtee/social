@@ -92,6 +92,12 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	comments, err := app.repository.Comments.GetByPostID(r.Context(), post.ID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	var resp struct {
 		ID        int64     `json:"id"`
 		UserID    int64     `json:"user_id"`
@@ -100,6 +106,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 		Tags      []string  `json:"tags"`
 		CreatedAt time.Time `json:"created_at"`
 		UpdatedAt time.Time `json:"updated_at"`
+		Comments  []data.CommentWithUser `json:"comments"`
 	}
 
 	resp.ID = post.ID
@@ -109,6 +116,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	resp.Tags = post.Tags
 	resp.CreatedAt = post.CreatedAt
 	resp.UpdatedAt = post.UpdatedAt
+	resp.Comments = comments
 
 	if err = app.writeJSON(w, http.StatusOK, envelope{"post": resp}, nil); err != nil {
 		app.serverErrorResponse(w, r, err)
