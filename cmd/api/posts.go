@@ -99,13 +99,13 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var resp struct {
-		ID        int64     `json:"id"`
-		UserID    int64     `json:"user_id"`
-		Title     string    `json:"title"`
-		Content   string    `json:"content"`
-		Tags      []string  `json:"tags"`
-		CreatedAt time.Time `json:"created_at"`
-		UpdatedAt time.Time `json:"updated_at"`
+		ID        int64                  `json:"id"`
+		UserID    int64                  `json:"user_id"`
+		Title     string                 `json:"title"`
+		Content   string                 `json:"content"`
+		Tags      []string               `json:"tags"`
+		CreatedAt time.Time              `json:"created_at"`
+		UpdatedAt time.Time              `json:"updated_at"`
 		Comments  []data.CommentWithUser `json:"comments"`
 	}
 
