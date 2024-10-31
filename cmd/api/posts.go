@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/hayohtee/social/internal/data"
 	"github.com/hayohtee/social/internal/repository"
+	"github.com/hayohtee/social/internal/validator"
 )
 
 func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request) {
@@ -19,8 +20,21 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 		Tags    []string `json:"tags"`
 	}
 
-	if err := readJSON(w, r, &input); err != nil {
-		app.badRequestErrorResponse(w, r, err, "bad request")
+	if err := app.readJSON(w, r, &input); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	v := validator.New()
+
+	v.Check(input.Title != "", "title", "must be provided")
+	v.Check(len(input.Title) > 100, "title", "must not be more than 100 bytes long")
+
+	v.Check(input.Content != "", "content", "must be provided")
+	v.Check(len(input.Content) > 1000, "content", "must be more than 1000 bytes long")
+
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
@@ -33,7 +47,7 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := app.repository.Posts.Create(r.Context(), &post); err != nil {
-		app.internalServerErrorResponse(w, r, err)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
@@ -53,8 +67,8 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 	response.CreatedAt = post.CreatedAt
 	response.UpdatedAt = post.UpdatedAt
 
-	if err := writeJSON(w, http.StatusCreated, envelope{"post": response}); err != nil {
-		app.internalServerErrorResponse(w, r, err)
+	if err := app.writeJSON(w, http.StatusCreated, envelope{"post": response}, nil); err != nil {
+		app.serverErrorResponse(w, r, err)
 	}
 }
 
@@ -62,7 +76,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "postID")
 	id, err := strconv.ParseInt(idParam, 16, 64)
 	if err != nil || id < 0 {
-		app.badRequestErrorResponse(w, r, err, "id must be a positive number")
+		app.notFoundResponse(w, r)
 		return
 	}
 
@@ -71,9 +85,9 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		switch {
 		case errors.Is(err, repository.ErrNotFound):
-			app.notFoundErrorResponse(w, r, err)
+			app.notFoundResponse(w, r)
 		default:
-			app.internalServerErrorResponse(w, r, err)
+			app.serverErrorResponse(w, r, err)
 		}
 		return
 	}
@@ -96,7 +110,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	resp.CreatedAt = post.CreatedAt
 	resp.UpdatedAt = post.UpdatedAt
 
-	if err = writeJSON(w, http.StatusOK, envelope{"post": resp}); err != nil {
-		app.internalServerErrorResponse(w, r, err)
+	if err = app.writeJSON(w, http.StatusOK, envelope{"post": resp}, nil); err != nil {
+		app.serverErrorResponse(w, r, err)
 	}
 }
