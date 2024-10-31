@@ -11,3 +11,8 @@ type Post struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+type PostWithComments struct {
+	Post
+	Comments []Comment
+}
