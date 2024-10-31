@@ -28,7 +28,7 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 	v := validator.New()
 
 	v.Check(input.Title != "", "title", "must be provided")
-	v.Check(len(input.Title) > 100, "title", "must not be more than 100 bytes long")
+	v.Check(len(input.Title) <= 100, "title", "must not be more than 100 bytes long")
 
 	v.Check(input.Content != "", "content", "must be provided")
 	v.Check(len(input.Content) <= 1000, "content", "must be more than 1000 bytes long")
