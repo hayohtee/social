@@ -67,6 +67,10 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 	response.CreatedAt = post.CreatedAt
 	response.UpdatedAt = post.UpdatedAt
 
+	if len(response.Tags) == 0 {
+		response.Tags = make([]string, 0)
+	}
+
 	if err := app.writeJSON(w, http.StatusCreated, envelope{"post": response}, nil); err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -117,6 +121,14 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	resp.CreatedAt = post.CreatedAt
 	resp.UpdatedAt = post.UpdatedAt
 	resp.Comments = comments
+
+	if len(resp.Tags) == 0 {
+		resp.Tags = []string{}
+	}
+
+	if len(resp.Comments) == 0 {
+		resp.Comments = []data.CommentWithUser{}
+	}
 
 	if err = app.writeJSON(w, http.StatusOK, envelope{"post": resp}, nil); err != nil {
 		app.serverErrorResponse(w, r, err)
