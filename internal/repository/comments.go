@@ -15,7 +15,7 @@ func (c *CommentsRepository) GetByPostID(ctx context.Context, postID int64) ([]d
 	query := `
 		SELECT c.id, c.post_id, c.user_id, c.content, c.created_at, users.username
 		FROM comments c
-		JOIN users u on user.id = c.user_id
+		JOIN users ON users.id = c.user_id
 		WHERE c.post_id = $1
 		ORDER BY c.created_at DESC`
 
