@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/hayohtee/social/internal/database"
 	"github.com/hayohtee/social/internal/env"
 	"github.com/hayohtee/social/internal/repository"
@@ -36,13 +35,9 @@ func main() {
 	defer db.Close()
 	log.Println("database connection pool established")
 
-	log.Println("configuring validator")
-	validate := validator.New(validator.WithRequiredStructEnabled())
-
 	app := &application{
 		config:     cfg,
 		repository: repository.NewRepository(db),
-		validate:   validate,
 	}
 
 	routes := app.routes()
