@@ -20,8 +20,7 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := readJSON(w, r, &input); err != nil {
-		log.Println(err)
-		writeJSONError(w, http.StatusBadRequest, "bad request")
+		app.badRequestErrorResponse(w, r, err, "bad request")
 		return
 	}
 
@@ -34,8 +33,7 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := app.repository.Posts.Create(r.Context(), &post); err != nil {
-		log.Println(err)
-		writeJSONError(w, http.StatusInternalServerError, "internal server error")
+		app.internalServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -56,8 +54,7 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 	response.UpdatedAt = post.UpdatedAt
 
 	if err := writeJSON(w, http.StatusCreated, envelope{"post": response}); err != nil {
-		log.Println(err)
-		writeJSONError(w, http.StatusInternalServerError, "internal server error")
+		app.internalServerErrorResponse(w, r, err)
 	}
 }
 
@@ -65,7 +62,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "postID")
 	id, err := strconv.ParseInt(idParam, 16, 64)
 	if err != nil || id < 0 {
-		writeJSONError(w, http.StatusBadRequest, "id must be a positive number")
+		app.badRequestErrorResponse(w, r, err, "id must be a positive number")
 		return
 	}
 
@@ -74,9 +71,9 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		switch {
 		case errors.Is(err, repository.ErrNotFound):
-			writeJSONError(w, http.StatusNotFound, "the requested resource could not be found")
+			app.notFoundErrorResponse(w, r, err)
 		default:
-			writeJSONError(w, http.StatusInternalServerError, "error processing the request")
+			app.internalServerErrorResponse(w, r, err)
 		}
 		return
 	}
@@ -100,7 +97,6 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	resp.UpdatedAt = post.UpdatedAt
 
 	if err = writeJSON(w, http.StatusOK, envelope{"post": resp}); err != nil {
-		log.Println(err)
-		writeJSONError(w, http.StatusInternalServerError, "error processing the request")
+		app.internalServerErrorResponse(w, r, err)
 	}
 }
