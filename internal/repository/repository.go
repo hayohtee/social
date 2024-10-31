@@ -21,11 +21,16 @@ type Repository struct {
 	Users interface {
 		Create(context.Context, *data.User) error
 	}
+
+	Comments interface {
+		GetByPostID(context.Context, int64) ([]data.CommentWithUser, error)
+	}
 }
 
 func NewRepository(db *sql.DB) Repository {
 	return Repository{
-		Posts: &PostsRepository{db: db},
-		Users: &UsersRepository{db: db},
+		Posts:    &PostsRepository{db: db},
+		Users:    &UsersRepository{db: db},
+		Comments: &CommentsRepository{db: db},
 	}
 }
