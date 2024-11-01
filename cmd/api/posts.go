@@ -15,6 +15,7 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 		Title   string   `json:"title"`
 		Content string   `json:"content"`
 		Tags    []string `json:"tags"`
+		UserID  int64    `json:"user_id"`
 	}
 
 	if err := app.readJSON(w, r, &input); err != nil {
@@ -22,11 +23,10 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	var userID int64 = 1
 	post := data.Post{
 		Title:   input.Title,
 		Content: input.Content,
-		UserID:  userID,
+		UserID:  input.UserID,
 		Tags:    input.Tags,
 	}
 
