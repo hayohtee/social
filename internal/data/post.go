@@ -23,5 +23,5 @@ func ValidatePost(v *validator.Validator, post Post) {
 	v.Check(post.Content != "", "content", "must be provided")
 	v.Check(len(post.Content) <= 1000, "content", "must be more than 1000 bytes long")
 
-	v.Check(post.UserID < 0, "user_id", "must be a positive number")
+	v.Check(post.UserID > 0, "user_id", "must be a positive number")
 }
