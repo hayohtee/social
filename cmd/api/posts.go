@@ -134,3 +134,11 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request) {
+
+}
