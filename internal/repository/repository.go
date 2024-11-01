@@ -17,6 +17,7 @@ type Repository struct {
 		Create(context.Context, *data.Post) error
 		GetByID(context.Context, int64) (data.Post, error)
 		Delete(context.Context, int64) error
+		Update(context.Context, *data.Post) error
 	}
 
 	Users interface {
