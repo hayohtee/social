@@ -79,3 +79,14 @@ func (p *PostsRepository) Delete(ctx context.Context, postID int64) error {
 
 	return nil
 }
+
+func (p *PostsRepository) Update(ctx context.Context, post *data.Post) error {
+	query := `
+		UPDATE posts
+		SET title = $1, content = $2, updated_at = NOW()
+		WHERE id = $3
+		RETURNING updated_at`
+
+	args := []any{post.Title, post.Content, post.CreatedAt}
+	return p.db.QueryRowContext(ctx, query, args...).Scan(&post.UpdatedAt)
+}
