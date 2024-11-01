@@ -87,6 +87,6 @@ func (p *PostsRepository) Update(ctx context.Context, post *data.Post) error {
 		WHERE id = $3
 		RETURNING updated_at`
 
-	args := []any{post.Title, post.Content, post.CreatedAt}
+	args := []any{post.Title, post.Content, post.ID}
 	return p.db.QueryRowContext(ctx, query, args...).Scan(&post.UpdatedAt)
 }
