@@ -29,6 +29,8 @@ func (app *application) routes() http.Handler {
 
 			r.Route("/{postID}", func(r chi.Router) {
 				r.Get("/", app.getPostHandler)
+				r.Patch("/", app.updatePostHandler)
+				r.Delete("/", app.deletePostHandler)
 			})
 		})
 	})
