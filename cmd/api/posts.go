@@ -4,10 +4,8 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/hayohtee/social/internal/data"
 	"github.com/hayohtee/social/internal/repository"
 	"github.com/hayohtee/social/internal/validator"
@@ -77,8 +75,7 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
-	idParam := chi.URLParam(r, "postID")
-	id, err := strconv.ParseInt(idParam, 16, 64)
+	id, err := readIDParam(r, "postID")
 	if err != nil || id < 0 {
 		app.notFoundResponse(w, r)
 		return
@@ -136,8 +133,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request) {
-	idParam := chi.URLParam(r, "postID")
-	id, err := strconv.ParseInt(idParam, 10, 64)
+	id, err := readIDParam(r, "postID")
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
@@ -159,5 +155,5 @@ func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request) {
-
+	id, err := readIDParam(r, "postID")
 }
