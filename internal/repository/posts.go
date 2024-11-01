@@ -57,3 +57,25 @@ func (p *PostsRepository) GetByID(ctx context.Context, id int64) (data.Post, err
 
 	return post, nil
 }
+
+func (p *PostsRepository) Delete(ctx context.Context, postID int64) error {
+	query := `
+		DELETE FROM posts
+		WHERE id = $1`
+
+	row, err := p.db.ExecContext(ctx, query, postID)
+	if err != nil {
+		return err
+	}
+
+	rows, err := row.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return ErrNotFound
+	}
+
+	return nil
+}
