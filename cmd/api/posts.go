@@ -136,7 +136,26 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "postID")
+	id, err := strconv.ParseInt(idParam, 10, 64)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
 
+	if err = app.repository.Posts.Delete(r.Context(), id); err != nil {
+		switch {
+		case errors.Is(err, repository.ErrNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	if err = app.writeJSON(w, http.StatusOK, envelope{"message": "post deleted successfully"}, nil); err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request) {
