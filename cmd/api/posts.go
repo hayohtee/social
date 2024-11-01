@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"time"
 
@@ -75,21 +74,9 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := readIDParam(r, "postID")
-	if err != nil || id < 0 {
+	post, ok := getPostFromContext(r.Context())
+	if !ok {
 		app.notFoundResponse(w, r)
-		return
-	}
-
-	post, err := app.repository.Posts.GetByID(r.Context(), id)
-	if err != nil {
-		log.Println(err)
-		switch {
-		case errors.Is(err, repository.ErrNotFound):
-			app.notFoundResponse(w, r)
-		default:
-			app.serverErrorResponse(w, r, err)
-		}
 		return
 	}
 
@@ -134,7 +121,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := readIDParam(r, "postID")
-	if err != nil {
+	if err != nil || id < 0 {
 		app.notFoundResponse(w, r)
 		return
 	}
@@ -155,5 +142,13 @@ func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := readIDParam(r, "postID")
+	post, ok := getPostFromContext(r.Context())
+	if !ok {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	if err := app.writeJSON(w, http.StatusOK, envelope{"post": post}, nil); err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
