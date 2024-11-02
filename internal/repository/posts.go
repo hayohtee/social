@@ -86,8 +86,21 @@ func (p *PostsRepository) Update(ctx context.Context, post *data.Post) error {
 		UPDATE posts
 		SET title = $1, content = $2, updated_at = NOW(), version = version + 1
 		WHERE id = $3 AND version = $4
-		RETURNING updated_at`
+		RETURNING updated_at, version`
 
 	args := []any{post.Title, post.Content, post.ID, post.Version}
-	return p.db.QueryRowContext(ctx, query, args...).Scan(&post.UpdatedAt)
+	err := p.db.QueryRowContext(ctx, query, args...).Scan(
+		&post.UpdatedAt,
+		&post.Version,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+	return nil
 }
