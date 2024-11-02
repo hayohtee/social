@@ -31,7 +31,7 @@ func (p *PostsRepository) Create(ctx context.Context, post *data.Post) error {
 
 func (p *PostsRepository) GetByID(ctx context.Context, id int64) (data.Post, error) {
 	query := `
-		SELECT id, user_id, title, content, tags, created_at, updated_at 
+		SELECT id, user_id, title, content, tags, created_at, updated_at, version
 		FROM posts
 		WHERE id = $1`
 
@@ -44,6 +44,7 @@ func (p *PostsRepository) GetByID(ctx context.Context, id int64) (data.Post, err
 		pq.Array(&post.Tags),
 		&post.CreatedAt,
 		&post.UpdatedAt,
+		&post.Version,
 	)
 
 	if err != nil {
@@ -83,10 +84,10 @@ func (p *PostsRepository) Delete(ctx context.Context, postID int64) error {
 func (p *PostsRepository) Update(ctx context.Context, post *data.Post) error {
 	query := `
 		UPDATE posts
-		SET title = $1, content = $2, updated_at = NOW()
-		WHERE id = $3
+		SET title = $1, content = $2, updated_at = NOW(), version = version + 1
+		WHERE id = $3 AND version = $4
 		RETURNING updated_at`
 
-	args := []any{post.Title, post.Content, post.ID}
+	args := []any{post.Title, post.Content, post.ID, post.Version}
 	return p.db.QueryRowContext(ctx, query, args...).Scan(&post.UpdatedAt)
 }
