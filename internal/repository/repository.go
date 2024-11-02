@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/hayohtee/social/internal/data"
 )
@@ -11,6 +12,8 @@ import (
 var (
 	ErrNotFound = errors.New("record not found")
 	ErrEditConflict = errors.New("edit conflict")
+
+	QueryTimeoutDuration = 5 * time.Second
 )
 
 type Repository struct {
