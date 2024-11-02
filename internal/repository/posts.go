@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"time"
 
 	"github.com/hayohtee/social/internal/data"
 	"github.com/lib/pq"
@@ -23,7 +22,7 @@ func (p *PostsRepository) Create(ctx context.Context, post *data.Post) error {
 
 	args := []any{post.Content, post.Title, post.UserID, pq.Array(post.Tags)}
 
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
 	return p.db.QueryRowContext(ctx, query, args...).Scan(
@@ -39,7 +38,7 @@ func (p *PostsRepository) GetByID(ctx context.Context, id int64) (data.Post, err
 		FROM posts
 		WHERE id = $1`
 
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
 	var post data.Post
@@ -71,7 +70,7 @@ func (p *PostsRepository) Delete(ctx context.Context, postID int64) error {
 		DELETE FROM posts
 		WHERE id = $1`
 
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
 	row, err := p.db.ExecContext(ctx, query, postID)
@@ -98,7 +97,7 @@ func (p *PostsRepository) Update(ctx context.Context, post *data.Post) error {
 		WHERE id = $3 AND version = $4
 		RETURNING updated_at, version`
 
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
 	args := []any{post.Title, post.Content, post.ID, post.Version}

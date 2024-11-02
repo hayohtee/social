@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"github.com/hayohtee/social/internal/data"
 )
@@ -20,7 +19,7 @@ func (c *CommentsRepository) GetByPostID(ctx context.Context, postID int64) ([]d
 		WHERE c.post_id = $1
 		ORDER BY c.created_at DESC`
 
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
 	rows, err := c.db.QueryContext(ctx, query, postID)
