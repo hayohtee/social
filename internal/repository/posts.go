@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/hayohtee/social/internal/data"
 	"github.com/lib/pq"
@@ -22,6 +23,9 @@ func (p *PostsRepository) Create(ctx context.Context, post *data.Post) error {
 
 	args := []any{post.Content, post.Title, post.UserID, pq.Array(post.Tags)}
 
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
 	return p.db.QueryRowContext(ctx, query, args...).Scan(
 		&post.ID,
 		&post.CreatedAt,
@@ -34,6 +38,9 @@ func (p *PostsRepository) GetByID(ctx context.Context, id int64) (data.Post, err
 		SELECT id, user_id, title, content, tags, created_at, updated_at, version
 		FROM posts
 		WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 
 	var post data.Post
 	err := p.db.QueryRowContext(ctx, query, id).Scan(
@@ -64,6 +71,9 @@ func (p *PostsRepository) Delete(ctx context.Context, postID int64) error {
 		DELETE FROM posts
 		WHERE id = $1`
 
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
 	row, err := p.db.ExecContext(ctx, query, postID)
 	if err != nil {
 		return err
@@ -87,6 +97,9 @@ func (p *PostsRepository) Update(ctx context.Context, post *data.Post) error {
 		SET title = $1, content = $2, updated_at = NOW(), version = version + 1
 		WHERE id = $3 AND version = $4
 		RETURNING updated_at, version`
+
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 
 	args := []any{post.Title, post.Content, post.ID, post.Version}
 	err := p.db.QueryRowContext(ctx, query, args...).Scan(
