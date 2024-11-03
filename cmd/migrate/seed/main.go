@@ -2,7 +2,9 @@ package main
 
 import (
 	"log"
+	"os"
 
+	"github.com/hayohtee/social/internal/database"
 	"github.com/joho/godotenv"
 )
 
@@ -11,5 +13,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	db, err := database.New(os.Getenv("DEV_DB_ADDR"), 5, 5, "15m")
+	if err != nil {
+		log.Fatal("error creating database conn:", err)
+	}
+	defer db.Close()
 
 }
