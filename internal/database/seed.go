@@ -51,6 +51,7 @@ func Seed(repo repository.Repository) {
 			}
 		}()
 	}
+	wg.Wait()
 }
 
 func generateUsers(faker *gofakeit.Faker, num int) []data.User {
