@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/hayohtee/social/internal/database"
+	"github.com/hayohtee/social/internal/repository"
 	"github.com/joho/godotenv"
 )
 
@@ -20,4 +21,6 @@ func main() {
 	}
 	defer db.Close()
 
+	repo := repository.NewRepository(db)
+	database.Seed(repo)
 }
