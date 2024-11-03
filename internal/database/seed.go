@@ -29,7 +29,7 @@ func Seed(repo repository.Repository) {
 	}
 	wg.Wait()
 
-	posts := generatePosts(users, faker, 200)
+	posts := generatePosts(users, faker, 400)
 	for _, post := range posts {
 		wg.Add(1)
 		go func() {
@@ -41,7 +41,7 @@ func Seed(repo repository.Repository) {
 	}
 	wg.Wait()
 
-	comments := generateComments(users, posts, faker, 200)
+	comments := generateComments(users, posts, faker, 600)
 	for _, comment := range comments {
 		wg.Add(1)
 		go func() {
@@ -74,8 +74,8 @@ func generatePosts(users []*data.User, faker *gofakeit.Faker, num int) []*data.P
 
 	for i := 0; i < num; i++ {
 		posts[i] = &data.Post{
-			Content: faker.Sentence(40),
-			Title:   faker.Word(),
+			Content: faker.Sentence(100),
+			Title:   faker.Sentence(10),
 			UserID:  users[rand.IntN(len(users))].ID,
 			Tags:    []string{},
 		}
