@@ -19,6 +19,9 @@ func (c *CommentsRepository) GetByPostID(ctx context.Context, postID int64) ([]d
 		WHERE c.post_id = $1
 		ORDER BY c.created_at DESC`
 
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
 	rows, err := c.db.QueryContext(ctx, query, postID)
 	if err != nil {
 		return nil, err
@@ -46,4 +49,21 @@ func (c *CommentsRepository) GetByPostID(ctx context.Context, postID int64) ([]d
 		return nil, rows.Err()
 	}
 	return comments, nil
+}
+
+func (c *CommentsRepository) Create(ctx context.Context, comment *data.Comment) error {
+	query := `
+		INSERT INTO comments(post_id, user_id, content)
+		VALUES ($1, $2, $3)
+		RETURNING id, created_at`
+
+	args := []any{comment.PostID, comment.UserID, comment.Content}
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	return c.db.QueryRowContext(ctx, query, args...).Scan(
+		&comment.ID,
+		&comment.CreatedAt,
+	)
 }

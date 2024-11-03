@@ -4,12 +4,16 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/hayohtee/social/internal/data"
 )
 
 var (
-	ErrNotFound = errors.New("record not found")
+	ErrNotFound     = errors.New("record not found")
+	ErrEditConflict = errors.New("edit conflict")
+
+	QueryTimeoutDuration = 5 * time.Second
 )
 
 type Repository struct {
@@ -25,6 +29,7 @@ type Repository struct {
 	}
 
 	Comments interface {
+		Create(context.Context, *data.Comment) error
 		GetByPostID(context.Context, int64) ([]data.CommentWithUser, error)
 	}
 }

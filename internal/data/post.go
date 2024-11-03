@@ -14,6 +14,7 @@ type Post struct {
 	Tags      []string
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	Version   int
 }
 
 func ValidatePost(v *validator.Validator, post Post) {
