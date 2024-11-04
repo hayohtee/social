@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/hayohtee/social/internal/data"
 )
@@ -21,4 +22,32 @@ func (u *UsersRepository) Create(ctx context.Context, user *data.User) error {
 		&user.ID,
 		&user.CreatedAt,
 	)
+}
+
+func (u *UsersRepository) Get(ctx context.Context, id int64) (data.User, error) {
+	query := `
+		SELECT id, username, email, created_at
+		FROM users
+		WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	var user data.User
+	err := u.db.QueryRowContext(ctx, query, id).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.CreatedAt,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return data.User{}, ErrNotFound
+		default:
+			return data.User{}, err
+		}
+	}
+	return user, nil
 }
