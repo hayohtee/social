@@ -12,6 +12,7 @@ import (
 var (
 	ErrNotFound     = errors.New("record not found")
 	ErrEditConflict = errors.New("edit conflict")
+	ErrDuplicateKey = errors.New("resource already exist")
 
 	QueryTimeoutDuration = 5 * time.Second
 )
