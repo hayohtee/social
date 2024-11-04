@@ -11,7 +11,7 @@ type FollowersRepository struct {
 
 func (f *FollowersRepository) UnFollow(ctx context.Context, userID, followerID int64) error {
 	query := `
-		DELETE followers
+		DELETE FROM followers
 		WHERE user_id = $1 AND follower_id = $2`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
