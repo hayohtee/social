@@ -27,6 +27,7 @@ type Repository struct {
 	Users interface {
 		Create(context.Context, *data.User) error
 		GetByID(context.Context, int64) (data.User, error)
+		Follow(context.Context, int64, int64) error
 	}
 
 	Comments interface {
