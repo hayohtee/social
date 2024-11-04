@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 	"time"
+
+	"github.com/hayohtee/social/internal/validator"
 )
 
 func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -41,8 +43,15 @@ func (app *application) followUserHandler(w http.ResponseWriter, r *http.Request
 		FollowerID int64 `json:"follower_id"`
 	}
 
-	if err := app.readJSON(w, r, &input); err != nil || input.FollowerID <= 0 {
+	if err := app.readJSON(w, r, &input); err != nil {
 		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	v := validator.New()
+	v.Check(input.FollowerID > 0, "follower_id", "must be a positive number")
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
@@ -68,8 +77,15 @@ func (app *application) unFollowUserHandler(w http.ResponseWriter, r *http.Reque
 		FollowerID int64 `json:"follower_id"`
 	}
 
-	if err := app.readJSON(w, r, &input); err != nil || input.FollowerID <= 0 {
+	if err := app.readJSON(w, r, &input); err != nil {
 		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	v := validator.New()
+	v.Check(input.FollowerID > 0, "follower_id", "must be a positive number")
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
