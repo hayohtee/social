@@ -40,7 +40,7 @@ func (app *application) routes() http.Handler {
 				r.Get("/", app.getUserHandler)
 
 				r.Put("/follow", app.followUserHandler)
-				r.Delete("/follow", app.unfollowUserHandler)
+				r.Delete("/follow", app.unFollowUserHandler)
 			})
 		})
 	})
