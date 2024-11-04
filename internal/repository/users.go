@@ -24,7 +24,7 @@ func (u *UsersRepository) Create(ctx context.Context, user *data.User) error {
 	)
 }
 
-func (u *UsersRepository) Get(ctx context.Context, id int64) (data.User, error) {
+func (u *UsersRepository) GetByID(ctx context.Context, id int64) (data.User, error) {
 	query := `
 		SELECT id, username, email, created_at
 		FROM users

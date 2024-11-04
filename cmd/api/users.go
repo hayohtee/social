@@ -15,7 +15,7 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := app.repository.Users.Get(r.Context(), id)
+	user, err := app.repository.Users.GetByID(r.Context(), id)
 	if err != nil {
 		switch {
 		case errors.Is(err, repository.ErrNotFound):
