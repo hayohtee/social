@@ -18,3 +18,8 @@ func getPostFromContext(ctx context.Context) (data.Post, bool) {
 	post, ok := ctx.Value(postKey).(data.Post)
 	return post, ok
 }
+
+func getUserFromContext(ctx context.Context) (data.User, bool) {
+	user, ok := ctx.Value(userKey).(data.User)
+	return user, ok
+}
