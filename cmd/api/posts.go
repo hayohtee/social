@@ -115,7 +115,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := readIDParam(r, "postID")
-	if err != nil || id < 0 {
+	if err != nil || id <= 0 {
 		app.notFoundResponse(w, r)
 		return
 	}
