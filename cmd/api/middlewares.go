@@ -19,7 +19,7 @@ const (
 func (app *application) postsContextMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id, err := readIDParam(r, "postID")
-		if err != nil || id < 0 {
+		if err != nil || id <= 0 {
 			app.notFoundResponse(w, r)
 			return
 		}
@@ -44,7 +44,7 @@ func (app *application) postsContextMiddleware(next http.Handler) http.Handler {
 func (app *application) userContextMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id, err := readIDParam(r, "userID")
-		if err != nil || id < 0 {
+		if err != nil || id <= 0 {
 			app.notFoundResponse(w, r)
 			return
 		}
