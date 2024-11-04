@@ -42,3 +42,11 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) followUserHandler(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (app *application) unFollowUserHandler(w http.ResponseWriter, r *http.Request) {
+	
+}
