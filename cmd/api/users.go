@@ -1,28 +1,14 @@
 package main
 
 import (
-	"errors"
 	"net/http"
 	"time"
-
-	"github.com/hayohtee/social/internal/repository"
 )
 
 func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := readIDParam(r, "userID")
-	if err != nil {
+	user, ok := getUserFromContext(r.Context())
+	if !ok {
 		app.notFoundResponse(w, r)
-		return
-	}
-
-	user, err := app.repository.Users.GetByID(r.Context(), id)
-	if err != nil {
-		switch {
-		case errors.Is(err, repository.ErrNotFound):
-			app.notFoundResponse(w, r)
-		default:
-			app.serverErrorResponse(w, r, err)
-		}
 		return
 	}
 
@@ -38,15 +24,61 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	response.Email = user.Email
 	response.CreatedAt = user.CreatedAt
 
-	if err = app.writeJSON(w, http.StatusOK, envelope{"user": response}, nil); err != nil {
+	if err := app.writeJSON(w, http.StatusOK, envelope{"user": response}, nil); err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
 
 func (app *application) followUserHandler(w http.ResponseWriter, r *http.Request) {
+	user, ok := getUserFromContext(r.Context())
+	if !ok {
+		app.notFoundResponse(w, r)
+		return
+	}
 
+	// TODO: revert back to auth userID from ctx
+	var input struct {
+		FollowerID int64 `json:"follower_id"`
+	}
+
+	if err := app.readJSON(w, r, &input); err != nil || input.FollowerID <= 0 {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	if err := app.repository.Followers.Follow(r.Context(), user.ID, input.FollowerID); err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if err := app.writeJSON(w, http.StatusOK, envelope{"message": "user followed successfully"}, nil); err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) unFollowUserHandler(w http.ResponseWriter, r *http.Request) {
-	
+	user, ok := getUserFromContext(r.Context())
+	if !ok {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	// TODO: revert back to auth userID from ctx
+	var input struct {
+		FollowerID int64 `json:"follower_id"`
+	}
+
+	if err := app.readJSON(w, r, &input); err != nil || input.FollowerID <= 0 {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	if err := app.repository.Followers.UnFollow(r.Context(), user.ID, input.FollowerID); err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if err := app.writeJSON(w, http.StatusOK, envelope{"message": "user un-followed successfully"}, nil); err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
