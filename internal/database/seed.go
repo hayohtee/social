@@ -8,7 +8,7 @@ import (
 
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/brianvoe/gofakeit/v7/source"
-	"github.com/hayohtee/social/internal/data"
+	"github.com/hayohtee/social/internal/model"
 	"github.com/hayohtee/social/internal/repository"
 )
 
@@ -55,11 +55,11 @@ func Seed(repo repository.Repository) {
 	log.Println("seeding complete")
 }
 
-func generateUsers(faker *gofakeit.Faker, num int) []*data.User {
-	users := make([]*data.User, num)
+func generateUsers(faker *gofakeit.Faker, num int) []*model.User {
+	users := make([]*model.User, num)
 
 	for i := 0; i < num; i++ {
-		users[i] = &data.User{
+		users[i] = &model.User{
 			Username: faker.Username(),
 			Email:    faker.Email(),
 			Password: faker.Password(true, true, true, true, false, 12),
@@ -69,11 +69,11 @@ func generateUsers(faker *gofakeit.Faker, num int) []*data.User {
 	return users
 }
 
-func generatePosts(users []*data.User, faker *gofakeit.Faker, num int) []*data.Post {
-	posts := make([]*data.Post, num)
+func generatePosts(users []*model.User, faker *gofakeit.Faker, num int) []*model.Post {
+	posts := make([]*model.Post, num)
 
 	for i := 0; i < num; i++ {
-		posts[i] = &data.Post{
+		posts[i] = &model.Post{
 			Content: faker.Sentence(100),
 			Title:   faker.Sentence(10),
 			UserID:  users[rand.IntN(len(users))].ID,
@@ -84,11 +84,11 @@ func generatePosts(users []*data.User, faker *gofakeit.Faker, num int) []*data.P
 	return posts
 }
 
-func generateComments(users []*data.User, posts []*data.Post, faker *gofakeit.Faker, num int) []*data.Comment {
-	comments := make([]*data.Comment, num)
+func generateComments(users []*model.User, posts []*model.Post, faker *gofakeit.Faker, num int) []*model.Comment {
+	comments := make([]*model.Comment, num)
 
 	for i := 0; i < num; i++ {
-		comments[i] = &data.Comment{
+		comments[i] = &model.Comment{
 			Content: faker.Comment(),
 			PostID:  posts[rand.IntN(len(posts))].ID,
 			UserID:  users[rand.IntN(len(users))].ID,

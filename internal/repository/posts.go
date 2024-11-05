@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/hayohtee/social/internal/data"
+	"github.com/hayohtee/social/internal/model"
 	"github.com/lib/pq"
 )
 
@@ -13,7 +13,7 @@ type PostsRepository struct {
 	db *sql.DB
 }
 
-func (p *PostsRepository) Create(ctx context.Context, post *data.Post) error {
+func (p *PostsRepository) Create(ctx context.Context, post *model.Post) error {
 	query := `
 		INSERT INTO posts (content, title, user_id, tags)
 		VALUES($1, $2, $3, $4)
@@ -32,7 +32,7 @@ func (p *PostsRepository) Create(ctx context.Context, post *data.Post) error {
 	)
 }
 
-func (p *PostsRepository) GetByID(ctx context.Context, id int64) (data.Post, error) {
+func (p *PostsRepository) GetByID(ctx context.Context, id int64) (model.Post, error) {
 	query := `
 		SELECT id, user_id, title, content, tags, created_at, updated_at, version
 		FROM posts
@@ -41,7 +41,7 @@ func (p *PostsRepository) GetByID(ctx context.Context, id int64) (data.Post, err
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	var post data.Post
+	var post model.Post
 	err := p.db.QueryRowContext(ctx, query, id).Scan(
 		&post.ID,
 		&post.UserID,
@@ -56,9 +56,9 @@ func (p *PostsRepository) GetByID(ctx context.Context, id int64) (data.Post, err
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return data.Post{}, ErrNotFound
+			return model.Post{}, ErrNotFound
 		default:
-			return data.Post{}, err
+			return model.Post{}, err
 		}
 	}
 
@@ -90,7 +90,7 @@ func (p *PostsRepository) Delete(ctx context.Context, postID int64) error {
 	return nil
 }
 
-func (p *PostsRepository) Update(ctx context.Context, post *data.Post) error {
+func (p *PostsRepository) Update(ctx context.Context, post *model.Post) error {
 	query := `
 		UPDATE posts
 		SET title = $1, content = $2, updated_at = NOW(), version = version + 1
