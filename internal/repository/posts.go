@@ -138,7 +138,7 @@ func (p *PostsRepository) GetUserFeeds(ctx context.Context, userID int64) ([]mod
 		LEFT JOIN 
 			comments ON posts.id = comments.post_id
 		WHERE 
-			followers.user_id = 100 
+			followers.user_id = $1
 		GROUP BY 
 			posts.id, 
 			posts.title, 
