@@ -119,16 +119,36 @@ func (p *PostsRepository) Update(ctx context.Context, post *model.Post) error {
 
 func (p *PostsRepository) GetUserFeeds(ctx context.Context, userID int64) ([]model.Feed, error) {
 	query := `
-		SELECT
-			p.id, p.user_id, p.title, p.content, p.created_at, 
-			p.updated_at, p.tags, COUNT(c.id), u.username
-		FROM posts p
-		LEFT JOIN comments c ON c.post_id = p.id
-		LEFT JOIN users u ON p.user_id = u.id
-		JOIN followers f ON f.follower_id = p.user_id
-		WHERE f.user_id = $1
-		GROUP BY p.id, u.username
-		ORDER BY p.created_at DESC`
+		SELECT 
+			posts.id AS post_id,
+			posts.title,
+			posts.content,
+			posts.user_id AS author_id,
+			users.username AS author_username,
+			posts.tags,
+			posts.created_at,
+			posts.updated_at,
+			COUNT(comments.id) AS comment_count
+		FROM 
+			posts
+		JOIN 
+			followers ON posts.user_id = followers.follower_id
+		JOIN 
+			users ON posts.user_id = users.id
+		LEFT JOIN 
+			comments ON posts.id = comments.post_id
+		WHERE 
+			followers.user_id = 100 
+		GROUP BY 
+			posts.id, 
+			posts.title, 
+			posts.content, 
+			posts.user_id, 
+			users.username, 
+			posts.tags, 
+			posts.created_at
+		ORDER BY 
+			posts.created_at DESC`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
@@ -145,14 +165,14 @@ func (p *PostsRepository) GetUserFeeds(ctx context.Context, userID int64) ([]mod
 		var feed model.Feed
 		err := rows.Scan(
 			&feed.PostID,
-			&feed.UserID,
 			&feed.Title,
 			&feed.Content,
+			&feed.AuthorID,
+			&feed.AuthorUsername,
+			pq.Array(&feed.Tags),
 			&feed.CreatedAt,
 			&feed.UpdatedAt,
-			pq.Array(&feed.Tags),
 			&feed.CommentsCount,
-			&feed.Username,
 		)
 
 		if err != nil {
