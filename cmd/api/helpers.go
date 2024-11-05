@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/hayohtee/social/internal/data"
+	"github.com/hayohtee/social/internal/model"
 )
 
 func readIDParam(r *http.Request, key string) (int64, error) {
@@ -14,12 +14,12 @@ func readIDParam(r *http.Request, key string) (int64, error) {
 	return strconv.ParseInt(idParam, 10, 64)
 }
 
-func getPostFromContext(ctx context.Context) (data.Post, bool) {
-	post, ok := ctx.Value(postKey).(data.Post)
+func getPostFromContext(ctx context.Context) (model.Post, bool) {
+	post, ok := ctx.Value(postKey).(model.Post)
 	return post, ok
 }
 
-func getUserFromContext(ctx context.Context) (data.User, bool) {
-	user, ok := ctx.Value(userKey).(data.User)
+func getUserFromContext(ctx context.Context) (model.User, bool) {
+	user, ok := ctx.Value(userKey).(model.User)
 	return user, ok
 }

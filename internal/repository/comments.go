@@ -4,14 +4,14 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/hayohtee/social/internal/data"
+	"github.com/hayohtee/social/internal/model"
 )
 
 type CommentsRepository struct {
 	db *sql.DB
 }
 
-func (c *CommentsRepository) GetByPostID(ctx context.Context, postID int64) ([]data.CommentWithUser, error) {
+func (c *CommentsRepository) GetByPostID(ctx context.Context, postID int64) ([]model.CommentWithUser, error) {
 	query := `
 		SELECT c.id, c.post_id, c.user_id, c.content, c.created_at, users.username
 		FROM comments c
@@ -28,9 +28,9 @@ func (c *CommentsRepository) GetByPostID(ctx context.Context, postID int64) ([]d
 	}
 	defer rows.Close()
 
-	var comments []data.CommentWithUser
+	var comments []model.CommentWithUser
 	for rows.Next() {
-		var comment data.CommentWithUser
+		var comment model.CommentWithUser
 		err := rows.Scan(
 			&comment.ID,
 			&comment.PostID,
@@ -51,7 +51,7 @@ func (c *CommentsRepository) GetByPostID(ctx context.Context, postID int64) ([]d
 	return comments, nil
 }
 
-func (c *CommentsRepository) Create(ctx context.Context, comment *data.Comment) error {
+func (c *CommentsRepository) Create(ctx context.Context, comment *model.Comment) error {
 	query := `
 		INSERT INTO comments(post_id, user_id, content)
 		VALUES ($1, $2, $3)

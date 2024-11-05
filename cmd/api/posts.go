@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/hayohtee/social/internal/data"
+	"github.com/hayohtee/social/internal/model"
 	"github.com/hayohtee/social/internal/repository"
 	"github.com/hayohtee/social/internal/validator"
 )
@@ -23,7 +23,7 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	post := data.Post{
+	post := model.Post{
 		Title:   input.Title,
 		Content: input.Content,
 		UserID:  input.UserID,
@@ -32,7 +32,7 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 
 	v := validator.New()
 
-	if data.ValidatePost(v, post); !v.Valid() {
+	if model.ValidatePost(v, post); !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
@@ -88,7 +88,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 		Tags      []string               `json:"tags"`
 		CreatedAt time.Time              `json:"created_at"`
 		UpdatedAt time.Time              `json:"updated_at"`
-		Comments  []data.CommentWithUser `json:"comments"`
+		Comments  []model.CommentWithUser `json:"comments"`
 	}
 
 	response.ID = post.ID
@@ -105,7 +105,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(response.Comments) == 0 {
-		response.Comments = []data.CommentWithUser{}
+		response.Comments = []model.CommentWithUser{}
 	}
 
 	if err = app.writeJSON(w, http.StatusOK, envelope{"post": response}, nil); err != nil {
@@ -161,7 +161,7 @@ func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	v := validator.New()
-	if data.ValidatePost(v, post); !v.Valid() {
+	if model.ValidatePost(v, post); !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}

@@ -1,9 +1,11 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
+	"github.com/hayohtee/social/internal/repository"
 	"github.com/hayohtee/social/internal/validator"
 )
 
@@ -56,7 +58,12 @@ func (app *application) followUserHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := app.repository.Followers.Follow(r.Context(), user.ID, input.FollowerID); err != nil {
-		app.serverErrorResponse(w, r, err)
+		switch {
+		case errors.Is(err, repository.ErrDuplicateKey):
+			app.errorResponse(w, r, http.StatusConflict, "resource already exists")
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
 		return
 	}
 

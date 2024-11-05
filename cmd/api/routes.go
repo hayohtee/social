@@ -44,6 +44,10 @@ func (app *application) routes() http.Handler {
 				r.Put("/follow", app.followUserHandler)
 				r.Delete("/follow", app.unFollowUserHandler)
 			})
+
+			r.Group(func(r chi.Router) {
+				r.Get("/feed", app.getUserFeedHandler)
+			})
 		})
 	})
 

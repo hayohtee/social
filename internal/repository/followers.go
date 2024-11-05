@@ -3,6 +3,9 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
+
+	"github.com/lib/pq"
 )
 
 type FollowersRepository struct {
@@ -31,5 +34,14 @@ func (f *FollowersRepository) Follow(ctx context.Context, userID, followerID int
 	defer cancel()
 
 	_, err := f.db.ExecContext(ctx, query, userID, followerID)
-	return err
+	if err != nil {
+		var pqErr *pq.Error
+		switch {
+		case errors.As(err, &pqErr):
+			return ErrDuplicateKey
+		default:
+			return err
+		}
+	}
+	return nil
 }
