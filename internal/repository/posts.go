@@ -116,3 +116,55 @@ func (p *PostsRepository) Update(ctx context.Context, post *model.Post) error {
 	}
 	return nil
 }
+
+func (p *PostsRepository) GetUserFeeds(ctx context.Context, userID int64) ([]model.Feed, error) {
+	query := `
+		SELECT
+			p.id, p.user_id, p.title, p.content, p.created_at, 
+			p.updated_at, p.tags, COUNT(c.id), u.username
+		FROM posts p
+		LEFT JOIN comments c ON c.post_id = p.id
+		LEFT JOIN users u ON p.user_id = u.id
+		JOIN followers f ON f.follower_id = p.user_id
+		WHERE f.user_id = $1
+		GROUP BY p.id, u.username
+		ORDER BY p.created_at DESC`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	var feeds []model.Feed
+
+	rows, err := p.db.QueryContext(ctx, query, userID)
+	if err != nil {
+		return []model.Feed{}, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var feed model.Feed
+		err := rows.Scan(
+			&feed.PostID,
+			&feed.UserID,
+			&feed.Title,
+			&feed.Content,
+			&feed.CreatedAt,
+			&feed.UpdatedAt,
+			pq.Array(&feed.Tags),
+			&feed.CommentsCount,
+			&feed.Username,
+		)
+
+		if err != nil {
+			return []model.Feed{}, err
+		}
+
+		feeds = append(feeds, feed)
+	}
+
+	if rows.Err() != nil {
+		return []model.Feed{}, err
+	}
+
+	return feeds, nil
+}
