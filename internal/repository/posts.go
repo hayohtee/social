@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/hayohtee/social/internal/data"
 	"github.com/lib/pq"
@@ -117,8 +118,8 @@ func (p *PostsRepository) Update(ctx context.Context, post *data.Post) error {
 	return nil
 }
 
-func (p *PostsRepository) GetUserFeeds(ctx context.Context, userID int64) ([]data.Feed, error) {
-	query := `
+func (p *PostsRepository) GetUserFeeds(ctx context.Context, userID int64, filters data.Filters) ([]data.Feed, error) {
+	query := fmt.Sprintf(`
 		SELECT 
 			posts.id AS post_id,
 			posts.title,
@@ -148,7 +149,13 @@ func (p *PostsRepository) GetUserFeeds(ctx context.Context, userID int64) ([]dat
 			posts.tags, 
 			posts.created_at
 		ORDER BY 
-			posts.created_at DESC`
+			posts.created_at %s
+		LIMIT %d
+		OFFSET %d`,
+		filters.Sort,
+		filters.Limit(),
+		filters.Offset(),
+	)
 
 	ctx, cancel := context.WithTimeout(ctx, queryTimeoutDuration)
 	defer cancel()
