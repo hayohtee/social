@@ -11,7 +11,7 @@ import (
 // and JSON response (containing a generic error message) to the client.
 func (app *application) serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
 	log.Println(err)
-	message := http.StatusText(http.StatusInternalServerError)
+	message := "the server encountered a problem when processing the request"
 	app.errorResponse(w, r, http.StatusInternalServerError, message)
 }
 

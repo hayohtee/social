@@ -5,14 +5,14 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/hayohtee/social/internal/model"
+	"github.com/hayohtee/social/internal/data"
 )
 
 type UsersRepository struct {
 	db *sql.DB
 }
 
-func (u *UsersRepository) Create(ctx context.Context, user *model.User) error {
+func (u *UsersRepository) Create(ctx context.Context, user *data.User) error {
 	query := `
 		INSERT INTO users(username, email, password)
 		VALUES($1, $2, $3)
@@ -24,16 +24,16 @@ func (u *UsersRepository) Create(ctx context.Context, user *model.User) error {
 	)
 }
 
-func (u *UsersRepository) GetByID(ctx context.Context, id int64) (model.User, error) {
+func (u *UsersRepository) GetByID(ctx context.Context, id int64) (data.User, error) {
 	query := `
 		SELECT id, username, email, created_at
 		FROM users
 		WHERE id = $1`
 
-	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	ctx, cancel := context.WithTimeout(ctx, queryTimeoutDuration)
 	defer cancel()
 
-	var user model.User
+	var user data.User
 	err := u.db.QueryRowContext(ctx, query, id).Scan(
 		&user.ID,
 		&user.Username,
@@ -44,9 +44,9 @@ func (u *UsersRepository) GetByID(ctx context.Context, id int64) (model.User, er
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return model.User{}, ErrNotFound
+			return data.User{}, ErrNotFound
 		default:
-			return model.User{}, err
+			return data.User{}, err
 		}
 	}
 	return user, nil
