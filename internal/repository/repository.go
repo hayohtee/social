@@ -23,7 +23,7 @@ type Repository struct {
 		GetByID(context.Context, int64) (data.Post, error)
 		Delete(context.Context, int64) error
 		Update(context.Context, *data.Post) error
-		GetUserFeeds(context.Context, int64) ([]data.Feed, error)
+		GetUserFeeds(context.Context, int64, data.Filters) ([]data.Feed, error)
 	}
 
 	Users interface {
