@@ -20,10 +20,10 @@ func ValidateFilters(v *validator.Validator, f Filters) {
 	v.Check(strings.ToUpper(f.Sort) == "ASC" || strings.ToLower(f.Sort) == "DESC", "sort", "invalid sort value")
 }
 
-func (f Filters) limit() int {
+func (f Filters) Limit() int {
 	return f.PageSize
 }
 
-func (f Filters) offset() int {
+func (f Filters) Offset() int {
 	return (f.Page - 1) * f.PageSize
 }
