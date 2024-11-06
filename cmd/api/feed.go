@@ -3,26 +3,27 @@ package main
 import (
 	"net/http"
 
+	"github.com/hayohtee/social/internal/data"
 	"github.com/hayohtee/social/internal/validator"
 )
 
 func (app *application) getUserFeedHandler(w http.ResponseWriter, r *http.Request) {
-	var f filters
+	var filters data.Filters
 
 	qs := r.URL.Query()
 	v := validator.New()
 
-	f.Page = readInt(qs, "page", 1, v)
-	f.PageSize = readInt(qs, "page_size", 20, v)
-	f.Sort = readString(qs, "sort", "ASC")
+	filters.Page = readInt(qs, "page", 1, v)
+	filters.PageSize = readInt(qs, "page_size", 20, v)
+	filters.Sort = readString(qs, "sort", "ASC")
 
-	if ValidateFilters(v, f); !v.Valid() {
+	if data.ValidateFilters(v, filters); !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
 	// TODO: Replace hardcoded user_id with actual one
-	feeds, err := app.repository.Posts.GetUserFeeds(r.Context(), 100)
+	feeds, err := app.repository.Posts.GetUserFeeds(r.Context(), 100, filters)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
