@@ -17,7 +17,7 @@ func (f *FollowersRepository) UnFollow(ctx context.Context, userID, followerID i
 		DELETE FROM followers
 		WHERE user_id = $1 AND follower_id = $2`
 
-	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	ctx, cancel := context.WithTimeout(ctx, queryTimeoutDuration)
 	defer cancel()
 
 	_, err := f.db.ExecContext(ctx, query, userID, followerID)
@@ -30,7 +30,7 @@ func (f *FollowersRepository) Follow(ctx context.Context, userID, followerID int
 		INSERT INTO followers (user_id, follower_id)
 		VALUES ($1, $2)`
 
-	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	ctx, cancel := context.WithTimeout(ctx, queryTimeoutDuration)
 	defer cancel()
 
 	_, err := f.db.ExecContext(ctx, query, userID, followerID)

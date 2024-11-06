@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/hayohtee/social/internal/model"
+	"github.com/hayohtee/social/internal/data"
 	"github.com/hayohtee/social/internal/validator"
 )
 
@@ -16,13 +16,13 @@ func readIDParam(r *http.Request, key string) (int64, error) {
 	return strconv.ParseInt(idParam, 10, 64)
 }
 
-func getPostFromContext(ctx context.Context) (model.Post, bool) {
-	post, ok := ctx.Value(postKey).(model.Post)
+func getPostFromContext(ctx context.Context) (data.Post, bool) {
+	post, ok := ctx.Value(postKey).(data.Post)
 	return post, ok
 }
 
-func getUserFromContext(ctx context.Context) (model.User, bool) {
-	user, ok := ctx.Value(userKey).(model.User)
+func getUserFromContext(ctx context.Context) (data.User, bool) {
+	user, ok := ctx.Value(userKey).(data.User)
 	return user, ok
 }
 
@@ -34,7 +34,7 @@ func readString(qs url.Values, key string, defaultValue string) string {
 	return s
 }
 
-func (app *application) readInt(qs url.Values, key string, defaultValue int, v *validator.Validator) int {
+func readInt(qs url.Values, key string, defaultValue int, v *validator.Validator) int {
 	s := qs.Get(key)
 	if s == "" {
 		return defaultValue
