@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/hayohtee/social/internal/data"
@@ -45,4 +46,12 @@ func readInt(qs url.Values, key string, defaultValue int, v *validator.Validator
 		return defaultValue
 	}
 	return i
+}
+
+func readCSV(qs url.Values, key string, defaultValue []string) []string {
+	csv := qs.Get(key)
+	if csv == "" {
+		return defaultValue
+	}
+	return strings.Split(csv, ",")
 }

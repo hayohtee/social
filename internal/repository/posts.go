@@ -139,7 +139,12 @@ func (p *PostsRepository) GetUserFeeds(ctx context.Context, userID int64, filter
 		LEFT JOIN 
 			comments ON posts.id = comments.post_id
 		WHERE 
-			followers.follower_id = $1
+			followers.follower_id = $1 AND 
+			(posts.tags @> $2 OR $2 = '{}') AND
+			(
+				(to_tsvector('simple', posts.title) @@ plainto_tsquery('simple', $3) OR $3 = '') OR
+				(to_tsvector('simple', posts.content) @@ plainto_tsquery('simple', $3) OR $3 = '')
+			)
 		GROUP BY 
 			posts.id, 
 			posts.title, 
@@ -162,7 +167,9 @@ func (p *PostsRepository) GetUserFeeds(ctx context.Context, userID int64, filter
 
 	var feeds []data.Feed
 
-	rows, err := p.db.QueryContext(ctx, query, userID)
+	args := []any{userID, pq.Array(filters.Tags), filters.Search}
+
+	rows, err := p.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return []data.Feed{}, err
 	}
