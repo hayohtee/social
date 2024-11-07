@@ -73,12 +73,18 @@ func generatePosts(users []*data.User, faker *gofakeit.Faker, num int) []*data.P
 	posts := make([]*data.Post, num)
 
 	for i := 0; i < num; i++ {
-		posts[i] = &data.Post{
+		post := &data.Post{
 			Content: faker.Sentence(100),
 			Title:   faker.Sentence(10),
 			UserID:  users[rand.IntN(len(users))].ID,
-			Tags:    []string{},
 		}
+		numTags := rand.IntN(5)
+		tags := make([]string, numTags)
+		for j := 0; j < numTags; j++ {
+			tags[j] = faker.Word()
+		}
+		post.Tags = tags
+		posts[i] = post
 	}
 
 	return posts
