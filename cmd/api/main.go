@@ -34,9 +34,9 @@ func main() {
 	}
 
 	cfg := config{
-		addr: env.GetString("ADDR", ":8080"),
+		addr: env.GetString("ADDR", ":4000"),
 		env:  env.GetString("ENV", "development"),
-		apiUrl: env.GetString("EXTERNAL_URL", "localhost:8080"),
+		apiUrl: env.GetString("EXTERNAL_URL", "localhost:4000"),
 		db: dbConfig{
 			addr:         env.GetString("DB_ADDR", "postgres://user:password@localhost/social?sslmode=disable"),
 			maxOpenConns: env.GetInt("DB_MAX_OPEN_CONNS", 30),
