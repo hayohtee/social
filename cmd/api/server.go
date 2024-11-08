@@ -4,9 +4,13 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/swaggo/swag/example/basic/docs"
 )
 
 func (app *application) serve(mux http.Handler) error {
+	docs.SwaggerInfo.Version = version
+
 	srv := http.Server {
 		Addr: app.config.addr,
 		Handler: mux,
