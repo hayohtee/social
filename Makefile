@@ -20,4 +20,4 @@ seed:
 
 .PHONY: gen-docs
 gen-docs:
-	@swag init -g ./cmd/api/main.go
+	@swag init -g ./cmd/api/main.go && swag fmt
