@@ -10,6 +10,8 @@ import (
 
 func (app *application) serve(mux http.Handler) error {
 	docs.SwaggerInfo.Version = version
+	docs.SwaggerInfo.BasePath = "/v1"
+	docs.SwaggerInfo.Host = app.config.addr
 
 	srv := http.Server {
 		Addr: app.config.addr,
