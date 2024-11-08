@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/swaggo/swag/example/basic/docs"
+	"github.com/hayohtee/social/docs"
 )
 
 func (app *application) serve(mux http.Handler) error {
