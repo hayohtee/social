@@ -1,9 +1,10 @@
 package main
 
 type config struct {
-	addr string
-	db   dbConfig
-	env  string
+	addr   string
+	db     dbConfig
+	env    string
+	apiUrl string
 }
 
 type dbConfig struct {
