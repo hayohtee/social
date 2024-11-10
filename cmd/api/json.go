@@ -80,10 +80,7 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any
 }
 
 func (app *application) logError(r *http.Request, err error) {
-	app.logger.Error(err, map[string]string{
-		"request_method": r.Method,
-		"request_url":    r.URL.String(),
-	})
+	app.logger.Errorw(err.Error(), "request_method", r.Method, "request_url", r.URL.String())
 }
 
 // errorResponse is a generic helper for sending JSON-formatted error messages to the client
