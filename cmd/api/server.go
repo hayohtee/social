@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"time"
 )
@@ -15,7 +14,7 @@ func (app *application) serve(mux http.Handler) error {
 		IdleTimeout:  time.Minute,
 	}
 
-	log.Printf("starting server at %s\n", srv.Addr)
+	app.logger.Infof("starting server at %s", srv.Addr)
 
 	return srv.ListenAndServe()
 }
