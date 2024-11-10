@@ -14,7 +14,7 @@ func (app *application) serve(mux http.Handler) error {
 		IdleTimeout:  time.Minute,
 	}
 
-	app.logger.Infof("starting server at %s", srv.Addr)
+	app.logger.Infow("server has started", "addr", srv.Addr, "env", app.config.env)
 
 	return srv.ListenAndServe()
 }
