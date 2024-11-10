@@ -1,13 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func (app *application) routes() http.Handler {
@@ -25,9 +23,6 @@ func (app *application) routes() http.Handler {
 
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/health", app.healthCheckHandler)
-
-		docsUrl := fmt.Sprintf("%s/swagger/doc.json", app.config.addr)
-		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsUrl)))
 
 		r.Route("/posts", func(r chi.Router) {
 			r.Post("/", app.createPostHandler)
