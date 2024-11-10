@@ -59,11 +59,13 @@ func generateUsers(faker *gofakeit.Faker, num int) []*data.User {
 	users := make([]*data.User, num)
 
 	for i := 0; i < num; i++ {
-		users[i] = &data.User{
+		user := data.User{
 			Username: faker.Username(),
 			Email:    faker.Email(),
-			Password: faker.Password(true, true, true, true, false, 12),
 		}
+
+		user.Password.Set(faker.Password(true, true, true, true, false, 12))
+		users[i] = &user
 	}
 
 	return users
