@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -80,13 +79,20 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any
 	return nil
 }
 
+func (app *application) logError(r *http.Request, err error) {
+	app.logger.Error(err, map[string]string{
+		"request_method": r.Method,
+		"request_url":    r.URL.String(),
+	})
+}
+
 // errorResponse is a generic helper for sending JSON-formatted error messages to the client
 // with the given status code.
 func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, status int, message any) {
 	env := envelope{"error": message}
 	err := app.writeJSON(w, status, env, nil)
 	if err != nil {
-		log.Println(err)
+		app.logError(r, err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
