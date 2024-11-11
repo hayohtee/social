@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/hayohtee/social/internal/data"
@@ -21,17 +22,30 @@ func (u *UsersRepository) Create(ctx context.Context, user *data.User, tx *sql.T
 
 	args := []any{user.Username, user.Email, user.Password.Hash}
 
-	if tx != nil {
-		return tx.QueryRowContext(ctx, query, args...).Scan(
+	if tx == nil {
+		return u.db.QueryRowContext(ctx, query, user.Username, user.Email, user.Password.Hash).Scan(
 			&user.ID,
 			&user.CreatedAt,
 		)
 	}
 
-	return u.db.QueryRowContext(ctx, query, user.Username, user.Email, user.Password.Hash).Scan(
+	err := tx.QueryRowContext(ctx, query, args...).Scan(
 		&user.ID,
 		&user.CreatedAt,
 	)
+
+	if err != nil {
+		switch {
+		case strings.Contains(err.Error(), `pq: duplicate key violates unique constraint "users_email_key"`):
+			return ErrDuplicateEmail
+		case strings.Contains(err.Error(), `pq: duplicate key violates unique constraint "users_username_key"`):
+			return ErrDuplicateUsername
+		default:
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (u *UsersRepository) GetByID(ctx context.Context, id int64) (data.User, error) {
