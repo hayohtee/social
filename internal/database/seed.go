@@ -22,7 +22,7 @@ func Seed(repo repository.Repository) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			if err := repo.Users.Create(ctx, user); err != nil {
+			if err := repo.Users.Create(ctx, user, nil); err != nil {
 				log.Println("error creating user:", err)
 			}
 		}()
@@ -64,7 +64,13 @@ func generateUsers(faker *gofakeit.Faker, num int) []*data.User {
 			Email:    faker.Email(),
 		}
 
-		user.Password.Set(faker.Password(true, true, true, true, false, 12))
+		password := faker.Password(true, true, true, true, false, 12)
+		err := user.Password.Set(password)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
 		users[i] = &user
 	}
 
@@ -75,7 +81,7 @@ func generatePosts(users []*data.User, faker *gofakeit.Faker, num int) []*data.P
 	posts := make([]*data.Post, num)
 
 	for i := 0; i < num; i++ {
-		post := &data.Post{
+		post := data.Post{
 			Content: faker.Sentence(100),
 			Title:   faker.Sentence(10),
 			UserID:  users[rand.IntN(len(users))].ID,
@@ -86,7 +92,7 @@ func generatePosts(users []*data.User, faker *gofakeit.Faker, num int) []*data.P
 			tags[j] = faker.Word()
 		}
 		post.Tags = tags
-		posts[i] = post
+		posts[i] = &post
 	}
 
 	return posts
