@@ -13,6 +13,8 @@ var (
 	ErrNotFound     = errors.New("record not found")
 	ErrEditConflict = errors.New("edit conflict")
 	ErrDuplicateKey = errors.New("resource already exist")
+	ErrDuplicateEmail = errors.New("a user with this email already exist")
+	ErrDuplicateUsername = errors.New("a user with this username already exist")
 )
 
 const queryTimeoutDuration = 5 * time.Second
