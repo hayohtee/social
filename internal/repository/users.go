@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/hayohtee/social/internal/data"
 )
@@ -12,13 +13,22 @@ type UsersRepository struct {
 	db *sql.DB
 }
 
-func (u *UsersRepository) Create(ctx context.Context, user *data.User) error {
+func (u *UsersRepository) Create(ctx context.Context, user *data.User, tx *sql.Tx) error {
 	query := `
 		INSERT INTO users(username, email, password)
 		VALUES($1, $2, $3)
 		RETURNING id, created_at`
 
-	return u.db.QueryRowContext(ctx, query, user.Username, user.Email, user.Password).Scan(
+	args := []any{user.Username, user.Email, user.Password.Hash}
+
+	if tx != nil {
+		return tx.QueryRowContext(ctx, query, args...).Scan(
+			&user.ID,
+			&user.CreatedAt,
+		)
+	}
+
+	return u.db.QueryRowContext(ctx, query, user.Username, user.Email, user.Password.Hash).Scan(
 		&user.ID,
 		&user.CreatedAt,
 	)
@@ -50,4 +60,28 @@ func (u *UsersRepository) GetByID(ctx context.Context, id int64) (data.User, err
 		}
 	}
 	return user, nil
+}
+
+func (u *UsersRepository) CreateAndInvite(ctx context.Context, user *data.User, token string, invitationExp time.Duration) error {
+	return withTx(u.db, ctx, func(tx *sql.Tx) error {
+		if err := u.Create(ctx, user, tx); err != nil {
+			return err
+		}
+		return u.createInvitation(ctx, tx, token, invitationExp, user.ID)
+	})
+}
+
+func (u *UsersRepository) createInvitation(ctx context.Context, tx *sql.Tx, token string, invitationExp time.Duration, userID int64) error {
+	query := `
+		INSERT INTO user_invitations(token, user_id, expiry)
+		VALUES ($1, $2, $3)`
+
+	ctx, cancel := context.WithTimeout(ctx, queryTimeoutDuration)
+	defer cancel()
+
+	_, err := tx.ExecContext(ctx, query, token, userID, time.Now().Add(invitationExp))
+	if err != nil {
+		return err
+	}
+	return nil
 }
