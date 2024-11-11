@@ -27,7 +27,8 @@ type Repository struct {
 	}
 
 	Users interface {
-		Create(context.Context, *data.User) error
+		Create(context.Context, *data.User, *sql.Tx) error
+		CreateAndInvite(context.Context, *data.User, string, time.Duration) error
 		GetByID(context.Context, int64) (data.User, error)
 	}
 
