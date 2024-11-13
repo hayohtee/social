@@ -59,14 +59,16 @@ func readCSV(qs url.Values, key string, defaultValue []string) []string {
 	return strings.Split(csv, ",")
 }
 
-func generateToken() ([]byte, error) {
+func generateToken() (data.Token, error) {
 	randomBytes := make([]byte, 16)
 	_, err := rand.Read(randomBytes)
 	if err != nil {
-		return nil, err
+		return data.Token{}, err
 	}
 
-	encodedBytes := base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(randomBytes)
-	hash := sha256.Sum256([]byte(encodedBytes))
-	return hash[:], nil
+	var token data.Token
+	token.PlainText = base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(randomBytes)
+	hash := sha256.Sum256([]byte(token.PlainText))
+	token.Hash = hash[:]
+	return token, nil
 }
