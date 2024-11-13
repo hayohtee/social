@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"net/http"
-	"time"
 
 	"github.com/hayohtee/social/internal/repository"
 	"github.com/hayohtee/social/internal/validator"
@@ -16,19 +15,7 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var response struct {
-		ID        int64     `json:"id"`
-		Username  string    `json:"username"`
-		Email     string    `json:"email"`
-		CreatedAt time.Time `json:"created_at"`
-	}
-
-	response.ID = user.ID
-	response.Username = user.Username
-	response.Email = user.Email
-	response.CreatedAt = user.CreatedAt
-
-	if err := app.writeJSON(w, http.StatusOK, envelope{"user": response}, nil); err != nil {
+	if err := app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil); err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
