@@ -76,7 +76,7 @@ func (u *UsersRepository) GetByID(ctx context.Context, id int64) (data.User, err
 	return user, nil
 }
 
-func (u *UsersRepository) CreateAndInvite(ctx context.Context, user *data.User, token string, invitationExp time.Duration) error {
+func (u *UsersRepository) CreateAndInvite(ctx context.Context, user *data.User, token []byte, invitationExp time.Duration) error {
 	return withTx(u.db, ctx, func(tx *sql.Tx) error {
 		if err := u.Create(ctx, user, tx); err != nil {
 			return err
