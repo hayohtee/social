@@ -36,9 +36,9 @@ func (u *UsersRepository) Create(ctx context.Context, user *data.User, tx *sql.T
 
 	if err != nil {
 		switch {
-		case strings.Contains(err.Error(), `pq: duplicate key violates unique constraint "users_email_key"`):
+		case strings.Contains(err.Error(), `"users_email_key"`):
 			return ErrDuplicateEmail
-		case strings.Contains(err.Error(), `pq: duplicate key violates unique constraint "users_username_key"`):
+		case strings.Contains(err.Error(), `"users_username_key"`):
 			return ErrDuplicateUsername
 		default:
 			return err
