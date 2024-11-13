@@ -85,7 +85,7 @@ func (u *UsersRepository) CreateAndInvite(ctx context.Context, user *data.User, 
 	})
 }
 
-func (u *UsersRepository) createInvitation(ctx context.Context, tx *sql.Tx, token string, invitationExp time.Duration, userID int64) error {
+func (u *UsersRepository) createInvitation(ctx context.Context, tx *sql.Tx, token []byte, invitationExp time.Duration, userID int64) error {
 	query := `
 		INSERT INTO user_invitations(token, user_id, expiry)
 		VALUES ($1, $2, $3)`

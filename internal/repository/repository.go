@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	ErrNotFound     = errors.New("record not found")
-	ErrEditConflict = errors.New("edit conflict")
-	ErrDuplicateKey = errors.New("resource already exist")
-	ErrDuplicateEmail = errors.New("a user with this email already exist")
+	ErrNotFound          = errors.New("record not found")
+	ErrEditConflict      = errors.New("edit conflict")
+	ErrDuplicateKey      = errors.New("resource already exist")
+	ErrDuplicateEmail    = errors.New("a user with this email already exist")
 	ErrDuplicateUsername = errors.New("a user with this username already exist")
 )
 
@@ -30,7 +30,7 @@ type Repository struct {
 
 	Users interface {
 		Create(context.Context, *data.User, *sql.Tx) error
-		CreateAndInvite(context.Context, *data.User, string, time.Duration) error
+		CreateAndInvite(context.Context, *data.User, []byte, time.Duration) error
 		GetByID(context.Context, int64) (data.User, error)
 	}
 
