@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"github.com/go-chi/chi/v5"
 	"net/http"
 
 	"github.com/hayohtee/social/internal/data"
@@ -129,7 +130,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	err = app.repository.Users.CreateAndInvite(r.Context(), &user, token, app.config.mail.exp)
+	err = app.repository.Users.CreateAndInvite(r.Context(), &user, token.Hash, app.config.mail.exp)
 	if err != nil {
 		switch {
 		case errors.Is(err, repository.ErrDuplicateEmail):
@@ -142,5 +143,27 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 			app.serverErrorResponse(w, r, err)
 		}
 		return
+	}
+}
+
+func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
+	token := chi.URLParam(r, "token")
+	if token == "" {
+		app.badRequestResponse(w, r, errors.New("no token provided"))
+		return
+	}
+	if err := app.repository.Users.Activate(r.Context(), token); err != nil {
+		switch {
+		case errors.Is(err, repository.ErrNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	err := app.writeJSON(w, http.StatusOK, envelope{"message": "account activated successfully"}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
 	}
 }
