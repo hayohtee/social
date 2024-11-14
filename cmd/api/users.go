@@ -144,6 +144,11 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		}
 		return
 	}
+
+	err = app.writeJSON(w, http.StatusCreated, envelope{"message": "user registered successfully"}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
