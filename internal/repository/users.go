@@ -121,16 +121,17 @@ func (u *UsersRepository) Activate(ctx context.Context, plainToken string) error
 }
 
 func getUserFromInvitation(ctx context.Context, tx *sql.Tx, plainToken string) (data.User, error) {
+	tokenHash := sha256.Sum256([]byte(plainToken))
+
 	query := `
 		SELECT u.id, u.username, u.email, u.created_at, u.activated
 		FROM users u
-		JOIN user_invitations ui ON ui.user_id = u.id
+		INNER JOIN user_invitations ui ON u.id = ui.user_id	
 		WHERE ui.token = $1 AND ui.expiry > $2`
 
 	ctx, cancel := context.WithTimeout(ctx, queryTimeoutDuration)
 	defer cancel()
 
-	tokenHash := sha256.Sum256([]byte(plainToken))
 	var user data.User
 	err := tx.QueryRowContext(ctx, query, tokenHash[:], time.Now()).Scan(
 		&user.ID,
