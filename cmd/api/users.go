@@ -145,7 +145,15 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusCreated, envelope{"message": "user registered successfully"}, nil)
+	var response struct {
+		data.User
+		Token string `json:"token"`
+	}
+
+	response.User = user
+	response.Token = token.PlainText
+
+	err = app.writeJSON(w, http.StatusCreated, envelope{"user": response}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -153,10 +161,12 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
 	token := chi.URLParam(r, "token")
+
 	if token == "" {
 		app.badRequestResponse(w, r, errors.New("no token provided"))
 		return
 	}
+
 	if err := app.repository.Users.Activate(r.Context(), token); err != nil {
 		switch {
 		case errors.Is(err, repository.ErrNotFound):
